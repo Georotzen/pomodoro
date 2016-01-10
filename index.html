@@ -26,13 +26,35 @@
 </head>
 
 <body>
-<div class="wrapper">
-  <div class="container">
-    <div class="title">
-      Pomodoro Clock
+    <div class="wrapper">
+        <div class="container">
+            <div class="title">
+                Pomodoro Clock
+            </div>
+            <div class="options">
+                <div class="break">
+                    <p>BREAK LENGTH</p>
+                    <button class="minus">-</button>
+                    <div class="break-time">5</div>
+                    <button class="plus">+</button>
+                    <p class="time-unit">minutes</p>
+                </div>
+                <div class="session">
+                    <p>SESSION LENGTH</p>
+                    <button class="minus">-</button>
+                    <div class="session-time">10</div>
+                    <button class="plus">+</button>
+                    <p class="time-unit">minutes</p>
+                </div>
+            </div>
+            <div class="clock-container">
+                <div class="clock-display">
+                    <p class="clock-which">Session</p>
+                    <p class="clock-time">0 : 50 : 26</p>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
     <!-- Javascript Files -->
     <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="js/pomodoro.js"></script>
