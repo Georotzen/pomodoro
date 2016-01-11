@@ -32,23 +32,42 @@ function changeLength(btn, btnParent) {
 	return;
 }
 
-function runTimer() {
-	setInterval(startTimer, 1000);
-}
+function startTimer(duration, display) {
+    var start = Date.now(),
+        diff,
+        hours,
+        minutes,
+        seconds,
+        intervalID;
+    function timer() {
+        // get the number of seconds that have elapsed since 
+        // startTimer() was called
+        diff = duration - (((Date.now() - start) / 1000) | 0); 
 
-function startTimer() {
-	var hours, minutes, seconds;
-	secondsLeft -= 1;
-	if (secondsLeft >= 0) {
-		hours = parseInt(secondsLeft / 3600);
-		minutes = parseInt(secondsLeft / 60);
-		seconds = parseInt(secondsLeft % 60);
+        hours = (diff / 3600) | 0;
+        minutes = ((diff % 3600) / 60) | 0;
+        seconds = (diff % 60) | 0;
 
-		$clockDisplay.html(padTime(hours) + " : " + padTime(minutes) + " : " + padTime(seconds));
-	}
-	else {
-		return;
-	}
+        hours = hours < 10 ? "0" + hours : hours;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.html(hours > 0 ? (hours + " : " + minutes + " : " + seconds) : ""  + minutes + " : " + seconds); 
+
+        if (diff <= 0) {
+            // add one second so that the count down starts at the full duration
+            start = Date.now() + 1000;
+        }
+        // stop the timer at 0 seconds remaining
+        if (diff < 1) {
+        	clearInterval(intervalID);
+        	changeLength(0, ".session");
+        }
+	};
+	
+    // we don't want to wait a full second before the timer starts
+    timer();
+    intervalID = setInterval(timer, 1000);
 }
 
 function fill() {
@@ -79,7 +98,7 @@ function buttonListeners() {
 	});
 
 	$(".action button").click(function() {
-		runTimer();
+		startTimer(secondsLeft, $clockDisplay);
 	});
 }
 
