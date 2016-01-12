@@ -91,13 +91,26 @@ body {
 }
 
 .action {
-	text-align: center;
+    text-align: center;
 }
 
 .action button {
-	margin-top: 50px;
-	min-width: 120px;
-	font-size: 28px;
-	border-radius: 10px;
-	background: #DDDDDD;
+    margin-top: 50px;
+    min-width: 120px;
+    font-size: 28px;
+    border-radius: 10px;
+    background: #DDDDDD;
+}
+
+.start {
+    color: green;
+}
+
+.pause {
+    color: blue;
+    display: none;
+}
+
+.reset {
+    color: red;
 }

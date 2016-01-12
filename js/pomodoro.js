@@ -1,77 +1,24 @@
 // Global Variables
 var $clockDisplay = $(".clock-display");
-var time = 25;
-var secondsLeft = time * 60;
+var sessionTime;
+var breakTime;
+var isRunning = false;
+var isPaused = false;
+var t;
 
-function changeLength(btn, btnParent) {
-	var $length = $(btnParent).find($(".length"));
-	var $timeUnit = $(btnParent).find($(".time-unit"));
-	var thisTime = $length.text();
-
-	function pluralize(minutes) {
-		var units;
-		if (minutes > 1) units = "minutes";
-		else units = "minute";
-		return units;
-	}
-
-	// Adjust the option time length display
-	if (btn === "+") thisTime++;
-	else if (btn === "-" && thisTime > 1) thisTime--;
-
-	// Adjust the main clock display if the btnParent is "Session Length"
-	if (btnParent === ".session") {
-		$clockDisplay.html(thisTime + "<br><span>" + pluralize(thisTime) + "</span>");
-		time = thisTime;
-		secondsLeft = time * 60;
-	}
-
-	// Update the length displays
-	$length.text(thisTime);
-	$timeUnit.text(pluralize(thisTime));
-	return;
+function minToSec(min) {
+    return min * 60;
 }
 
-function startTimer(duration, display) {
-    var start = Date.now(),
-        diff,
-        hours,
-        minutes,
-        seconds,
-        intervalID;
-    function timer() {
-        // get the number of seconds that have elapsed since 
-        // startTimer() was called
-        diff = duration - (((Date.now() - start) / 1000) | 0); 
-
-        hours = (diff / 3600) | 0;
-        minutes = ((diff % 3600) / 60) | 0;
-        seconds = (diff % 60) | 0;
-
-        hours = hours < 10 ? "0" + hours : hours;
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-
-        display.html(hours > 0 ? (hours + " : " + minutes + " : " + seconds) : ""  + minutes + " : " + seconds); 
-
-        if (diff <= 0) {
-            // add one second so that the count down starts at the full duration
-            start = Date.now() + 1000;
-        }
-        // stop the timer at 0 seconds remaining
-        if (diff < 1) {
-        	clearInterval(intervalID);
-        	changeLength(0, ".session");
-        }
-	};
-	
-    // we don't want to wait a full second before the timer starts
-    timer();
-    intervalID = setInterval(timer, 1000);
+function pluralize(amount) {
+    var grammar;
+    if (amount > 1) grammar = "minutes";
+    else grammar = "minute";
+    return grammar;
 }
 
 function fill() {
-	var per = 0;
+    var per = 0;
     setInterval(function() {
         per++;
         if (per <= 100) {
@@ -82,27 +29,133 @@ function fill() {
     }, 100);
 }
 
-function padTime(d) {
-	var digits = String(d);
-	while (digits.length < 2) {
-		digits = "0" + digits;
-	}
-	return digits;
+function changeLength(btn, btnParent) {
+    var $length = $(btnParent).find($(".length"));
+    var $timeUnit = $(btnParent).find($(".time-unit"));
+    var thisTime = $length.text();
+
+    // Adjust the option time length display
+    if (btn === "+" && thisTime < 1000) thisTime++;
+    else if (btn === "-" && thisTime > 1) thisTime--;
+
+    // Adjust the main clock display if the btnParent is "Session Length"
+    if (btnParent === ".session") {
+        $clockDisplay.html(thisTime + "<br><span>" + pluralize(thisTime) + "</span>");
+        $(".clock-which").text("Session");
+    }
+
+    // Update the length displays
+    $length.text(thisTime);
+    $timeUnit.text(pluralize(thisTime));
+    return;
+}
+
+var timer = function(display) {
+    var counter,
+        time,
+        hours,
+        minutes,
+        seconds,
+        intervalID;
+
+    // set some intial values when - new timer() - is called
+    sessionTime = minToSec($(".session div").text());
+    breakTime = minToSec($(".break div").text());
+    time = sessionTime;
+    counter = time + 1;
+
+    var startTimer = function(which) {
+        if (!isPaused) {
+            counter--;
+
+            hours = (counter / 3600) | 0;
+            minutes = ((counter % 3600) / 60) | 0;
+            seconds = (counter % 60) | 0;
+
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            $(".clock-which").text(which);
+            display.html(hours > 0 ? (hours + " : " + minutes + " : " + seconds) : "" + minutes + " : " + seconds);
+
+            // switch from Session to Break and vice versa when the timer has 0 seconds remaining
+            if (counter < 1) {
+                switchTimer(which);
+            }
+        }
+    };
+
+    var switchTimer = function(which) {
+        clearInterval(intervalID);
+        var w = which;
+        if (w === "Session") {
+            w = "Break!";
+            time = breakTime;
+            counter = time + 1;
+        } else {
+            w = "Session";
+            time = sessionTime;
+            counter = time + 1;
+        }
+        return intervalID = setInterval(function() {
+            startTimer(w)
+        }, 1000);
+    }
+
+    this.run = function() {
+        if (!isPaused) {
+            startTimer("Session");
+            intervalID = setInterval(function() {
+                startTimer("Session")
+            }, 1000);
+            isRunning = true;
+        } else {
+            isPaused = false;
+        }
+    }
+
+    this.resetTimer = function() {
+        clearInterval(intervalID);
+        changeLength(0, ".session");
+        isRunning = false;
+    }
+
 }
 
 function buttonListeners() {
-	$(".options button").click(function() {
-		var btnParent = "." + $(this).parent().attr("class");
-		var btn = $(this).text();
-		changeLength(btn, btnParent);
-	});
+    $(".options button, .reset").click(function() {
+        var btnParent = "." + $(this).parent().attr("class");
+        var btn = $(this).text();
 
-	$(".action button").click(function() {
-		startTimer(secondsLeft, $clockDisplay);
-	});
+        changeLength(btn, btnParent);
+
+        if (isRunning) {
+            $(".pause").hide(100, function() {
+                $(".start").show(100);
+            });
+            isPaused = false;
+            t.resetTimer();
+        }
+    });
+
+    $(".start").click(function() {
+        if (!isRunning) t = new timer($clockDisplay);
+        $(this).hide(100, function() {
+            $(".pause").show(100);
+        });
+        t.run();
+    });
+
+    $(".pause").click(function() {
+        $(this).hide(100, function() {
+            $(".start").show(100);
+        });
+        isPaused = true;
+    });
 }
 
 $(document).ready(function() {
-    fill();
+    //fill();
     buttonListeners();
 });
