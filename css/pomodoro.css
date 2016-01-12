@@ -95,7 +95,7 @@ body {
 }
 
 .action button {
-    margin-top: 50px;
+    margin: 50px 20px;
     min-width: 120px;
     font-size: 28px;
     border-radius: 10px;
