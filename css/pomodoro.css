@@ -13,7 +13,7 @@ body {
     text-align: center;
     color: #CDD7B6;
     font-size: 82px;
-    padding: 10px 0px 10px 0px;
+    padding-top: 10px;
     text-shadow: 0px 1px 0px #999, 0px 2px 0px #888, 0px 3px 0px #777, 0px 4px 0px #666, 0px 5px 0px #555, 0px 6px 0px #444, 0px 7px 0px #333, 0px 8px 7px #001135;
 }
 
@@ -23,6 +23,7 @@ body {
     width: 100%;
     font-size: 18px;
     padding: 30px 0;
+    margin-bottom: -30px;
 }
 
 .options div {
@@ -92,6 +93,7 @@ body {
 
 .action {
     text-align: center;
+    margin-top: -20px;
 }
 
 .action button {
