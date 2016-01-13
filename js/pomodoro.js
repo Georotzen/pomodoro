@@ -1,14 +1,8 @@
 // Global Variables
-var $clockDisplay = $(".clock-display");
-var sessionTime;
-var breakTime;
-var isRunning = false;
-var isPaused = false;
-var t;
-
-function minToSec(min) {
-    return min * 60;
-}
+var $clockDisplay = $(".clock-display"),
+    sessionLength = $(".session div").text() * 60,
+    breakLength = $(".break div").text() * 60,
+    t;
 
 function pluralize(amount) {
     var grammar;
@@ -29,118 +23,144 @@ function fill() {
     }, 100);
 }
 
-function changeLength(btn, btnParent) {
-    var $length = $(btnParent).find($(".length"));
-    var $timeUnit = $(btnParent).find($(".time-unit"));
-    var thisTime = $length.text();
+function updateLength(btn, btnParent) {
+    var $thisLength = $(btnParent).find($(".length")),
+        $thisTimeUnit = $(btnParent).find($(".time-unit")),
+        thisTime = $thisLength.text();
 
     // Adjust the option time length display
     if (btn === "+" && thisTime < 1000) thisTime++;
     else if (btn === "-" && thisTime > 1) thisTime--;
 
     // Adjust the main clock display if the btnParent is "Session Length"
-    if (btnParent === ".session") {
+    if (btnParent === ".session" && !t.isRunning()) {
         $clockDisplay.html(thisTime + "<br><span>" + pluralize(thisTime) + "</span>");
         $(".clock-which").text("Session");
     }
 
     // Update the length displays
-    $length.text(thisTime);
-    $timeUnit.text(pluralize(thisTime));
+    $thisLength.text(thisTime);
+    $thisTimeUnit.text(pluralize(thisTime));
+
+    // Update the time variables and current clock time
+    if (btnParent === ".session") {
+        sessionLength = thisTime * 60;
+        if (t.isRunning()) t.update(btnParent, sessionLength);
+    } else if (btnParent === ".break") {
+        breakLength = thisTime * 60;
+        if (t.isRunning()) t.update(btnParent, breakLength);
+    }
+
     return;
 }
 
-var timer = function(display) {
-    var counter,
-        time,
+var timer = function(sTime, bTime, display) {
+    var counter = sTime + 1,
+        running = false,
+        paused = false,
+        whichActive = ".session",
+        that = this,
         hours,
         minutes,
         seconds,
         intervalID;
 
-    // set some intial values when - new timer() - is called
-    sessionTime = minToSec($(".session div").text());
-    breakTime = minToSec($(".break div").text());
-    time = sessionTime;
-    counter = time + 1;
-
     var startTimer = function(which) {
-        if (!isPaused) {
+        if (!paused) {
             counter--;
-
-            hours = (counter / 3600) | 0;
-            minutes = ((counter % 3600) / 60) | 0;
-            seconds = (counter % 60) | 0;
-
-            hours = hours < 10 ? "0" + hours : hours;
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-
+            updateDisplay(counter);
             $(".clock-which").text(which);
-            display.html(hours > 0 ? (hours + " : " + minutes + " : " + seconds) : "" + minutes + " : " + seconds);
-
             // switch from Session to Break and vice versa when the timer has 0 seconds remaining
             if (counter < 1) {
                 switchTimer(which);
             }
         }
-    };
+    }
+
+    var updateDisplay = function(count) {
+        hours = (counter / 3600) | 0;
+        minutes = ((counter % 3600) / 60) | 0;
+        seconds = (counter % 60) | 0;
+
+        hours = hours < 10 ? "0" + hours : hours;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.html(hours > 0 ? (hours + " : " + minutes + " : " + seconds) : "" + minutes + " : " + seconds);
+        return;
+    }
 
     var switchTimer = function(which) {
         clearInterval(intervalID);
         var w = which;
         if (w === "Session") {
             w = "Break!";
-            time = breakTime;
-            counter = time + 1;
+            counter = bTime + 1;
+            whichActive = ".break";
         } else {
             w = "Session";
-            time = sessionTime;
-            counter = time + 1;
+            counter = sTime + 1;
+            whichActive = ".session";
         }
-        return intervalID = setInterval(function() {
+        intervalID = setInterval(function() {
             startTimer(w)
         }, 1000);
     }
 
     this.run = function() {
-        if (!isPaused) {
+        if (!running) {
+            running = true;
+            paused = false;
             startTimer("Session");
-            intervalID = setInterval(function() {
+            return intervalID = setInterval(function() {
                 startTimer("Session")
             }, 1000);
-            isRunning = true;
         } else {
-            isPaused = false;
+            return paused = false;
         }
     }
 
-    this.resetTimer = function() {
-        clearInterval(intervalID);
-        changeLength(0, ".session");
-        isRunning = false;
+    this.restart = function() {
+        running = false;
+        paused = true;
+        return clearInterval(intervalID);
     }
 
+    this.pause = function() {
+        return paused = true;
+    }
+
+    this.isRunning = function() {
+        return running;
+    }
+
+    this.update = function(which, newTime) {
+        if (which === ".session") sTime = newTime;
+        else if (which === ".break") bTime = newTime;
+
+        if (whichActive === which) {
+            counter = newTime;
+            that.pause();
+            updateDisplay(counter);
+
+            function runDelay() {
+                that.run();
+            }
+            setTimeout(runDelay, 1500);
+        }
+    }
 }
 
 function buttonListeners() {
-    $(".options button, .reset").click(function() {
-        var btnParent = "." + $(this).parent().attr("class");
-        var btn = $(this).text();
+    $(".options button").click(function() {
+        var btnParent = "." + $(this).parent().attr("class"),
+            btn = $(this).text();
 
-        changeLength(btn, btnParent);
-
-        if (isRunning) {
-            $(".pause").hide(100, function() {
-                $(".start").show(100);
-            });
-            isPaused = false;
-            t.resetTimer();
-        }
+        updateLength(btn, btnParent);
     });
 
     $(".start").click(function() {
-        if (!isRunning) t = new timer($clockDisplay);
+        if (!t.isRunning()) t = new timer(sessionLength, breakLength, $clockDisplay);
         $(this).hide(100, function() {
             $(".pause").show(100);
         });
@@ -151,11 +171,22 @@ function buttonListeners() {
         $(this).hide(100, function() {
             $(".start").show(100);
         });
-        isPaused = true;
+        t.pause();
+    });
+
+    $(".reset").click(function() {
+        if (t.isRunning()) {
+            $(".pause").hide(100, function() {
+                $(".start").show(100);
+            });
+            t.restart();
+            updateLength(null, ".session");
+        }
     });
 }
 
 $(document).ready(function() {
     //fill();
+    t = new timer(sessionLength, breakLength, $clockDisplay);
     buttonListeners();
 });

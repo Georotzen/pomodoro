@@ -44,6 +44,10 @@ body {
     font-size: 26px;
 }
 
+.length {
+    width: 35px;
+}
+
 .break {
     display: inline-block;
 }
@@ -96,8 +100,12 @@ body {
     margin-top: -20px;
 }
 
+.action span {
+    margin-right: 30px;
+}
+
 .action button {
-    margin: 50px 20px;
+    margin: 50px 0;
     min-width: 120px;
     font-size: 28px;
     border-radius: 10px;
