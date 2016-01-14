@@ -1,7 +1,11 @@
 // Global Variables
 var $clockDisplay = $(".clock-display"),
-    sessionLength = $(".session div").text() * 60,
-    breakLength = $(".break div").text() * 60,
+    $clockContainer = $(".clock-container"),
+    $clockContainerBefore = $(".clock-container-before"),
+    sessionLength = $(".session > .length").text() * 60,
+    breakLength = $(".break > .length").text() * 60,
+    sessionColor = "#2F8C2F",
+    breakColor = "#AF3A3A",
     t;
 
 function pluralize(amount) {
@@ -11,28 +15,16 @@ function pluralize(amount) {
     return grammar;
 }
 
-function fill() {
-    var per = 0;
-    setInterval(function() {
-        per++;
-        if (per <= 100) {
-            $('.clock-container').css({
-                background: "linear-gradient(to top, green " + per + "%,transparent " + per + "%,transparent 100%)"
-            });
-        }
-    }, 100);
-}
-
 function updateLength(btn, btnParent) {
     var $thisLength = $(btnParent).find($(".length")),
         $thisTimeUnit = $(btnParent).find($(".time-unit")),
         thisTime = $thisLength.text();
 
     // Adjust the option time length display
-    if (btn === "+" && thisTime < 1000) thisTime++;
-    else if (btn === "-" && thisTime > 1) thisTime--;
+    if (btn === "plus" && thisTime < 1000) thisTime++;
+    else if (btn === "minus" && thisTime > 1) thisTime--;
 
-    // Adjust the main clock display if the btnParent is "Session Length"
+    // Adjust the main clock display if the btnParent is "Session Length" and clock is not running
     if (btnParent === ".session" && !t.isRunning()) {
         $clockDisplay.html(thisTime + "<br><span>" + pluralize(thisTime) + "</span>");
         $(".clock-which").text("Session");
@@ -55,29 +47,30 @@ function updateLength(btn, btnParent) {
 }
 
 var timer = function(sTime, bTime, display) {
-    var counter = sTime + 1,
-        running = false,
-        paused = false,
-        whichActive = ".session",
-        that = this,
-        hours,
+    var hours,
         minutes,
         seconds,
-        intervalID;
+        intervalID,
+        that = this,
+        paused = false,
+        running = false,
+        startSecs = sTime,
+        counter = sTime + 1,
+        color = sessionColor,
+        whichActive = ".session";
+
 
     var startTimer = function(which) {
         if (!paused) {
             counter--;
-            updateDisplay(counter);
+            updateDisplay(which);
             $(".clock-which").text(which);
             // switch from Session to Break and vice versa when the timer has 0 seconds remaining
-            if (counter < 1) {
-                switchTimer(which);
-            }
+            if (counter < 1) switchTimer(which);
         }
     }
 
-    var updateDisplay = function(count) {
+    var updateDisplay = function() {
         hours = (counter / 3600) | 0;
         minutes = ((counter % 3600) / 60) | 0;
         seconds = (counter % 60) | 0;
@@ -87,7 +80,16 @@ var timer = function(sTime, bTime, display) {
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
         display.html(hours > 0 ? (hours + " : " + minutes + " : " + seconds) : "" + minutes + " : " + seconds);
+        fill();
         return;
+    }
+
+    var fill = function() {
+        var per = Math.abs((counter / startSecs) * 100 - 100);
+        per++;
+        $clockContainer.css({
+            background: "linear-gradient(to top, " + color + " " + per + "%,transparent " + per + "%,transparent 100%)"
+        });
     }
 
     var switchTimer = function(which) {
@@ -97,11 +99,16 @@ var timer = function(sTime, bTime, display) {
             w = "Break!";
             counter = bTime + 1;
             whichActive = ".break";
+            color = breakColor;
+            startSecs = bTime;
         } else {
             w = "Session";
             counter = sTime + 1;
             whichActive = ".session";
+            color = sessionColor;
+            startSecs = sTime;
         }
+        $clockContainerBefore.css("border-color", color);
         intervalID = setInterval(function() {
             startTimer(w)
         }, 1000);
@@ -112,6 +119,7 @@ var timer = function(sTime, bTime, display) {
             running = true;
             paused = false;
             startTimer("Session");
+            $clockContainerBefore.css("border-color", color);
             return intervalID = setInterval(function() {
                 startTimer("Session")
             }, 1000);
@@ -123,6 +131,8 @@ var timer = function(sTime, bTime, display) {
     this.restart = function() {
         running = false;
         paused = true;
+        $clockContainer.css("background", "transparent");
+        $clockContainerBefore.css("border-color", "#FFF");
         return clearInterval(intervalID);
     }
 
@@ -135,40 +145,29 @@ var timer = function(sTime, bTime, display) {
     }
 
     this.update = function(which, newTime) {
-        if (which === ".session") sTime = newTime;
-        else if (which === ".break") bTime = newTime;
-
-        if (whichActive === which) {
-            counter = newTime;
-            that.pause();
-            updateDisplay(counter);
-
-            function runDelay() {
-                that.run();
-            }
-            setTimeout(runDelay, 1500);
-        }
+        if (which === ".session") return sTime = newTime;
+        else if (which === ".break") return bTime = newTime;
     }
 }
 
 function buttonListeners() {
-    $(".options button").click(function() {
+    $(".minus, .plus").click(function() {
         var btnParent = "." + $(this).parent().attr("class"),
-            btn = $(this).text();
+            btn = $(this).attr("class");
 
         updateLength(btn, btnParent);
     });
 
     $(".start").click(function() {
         if (!t.isRunning()) t = new timer(sessionLength, breakLength, $clockDisplay);
-        $(this).hide(100, function() {
+        $(this).hide(0, function() {
             $(".pause").show(100);
         });
         t.run();
     });
 
     $(".pause").click(function() {
-        $(this).hide(100, function() {
+        $(this).hide(0, function() {
             $(".start").show(100);
         });
         t.pause();
@@ -176,7 +175,7 @@ function buttonListeners() {
 
     $(".reset").click(function() {
         if (t.isRunning()) {
-            $(".pause").hide(100, function() {
+            $(".pause").hide(0, function() {
                 $(".start").show(100);
             });
             t.restart();
@@ -186,7 +185,6 @@ function buttonListeners() {
 }
 
 $(document).ready(function() {
-    //fill();
     t = new timer(sessionLength, breakLength, $clockDisplay);
     buttonListeners();
 });

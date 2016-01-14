@@ -20,6 +20,7 @@
     <link rel="shortcut icon" href="/favicon.ico?">
     <!-- CSS Style Sheets -->
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="css/pomodoro.css">
     <!-- Fonts -->
     <link href='https://fonts.googleapis.com/css?family=Fugaz+One' rel='stylesheet' type='text/css'>
@@ -34,34 +35,34 @@
             <div class="options">
                 <div class="break">
                     <p>BREAK LENGTH</p>
-                    <button class="minus">-</button>
+                    <div class="minus"><i class="fa fa-minus"></i></div>
                     <div class="length">5</div>
-                    <button class="plus">+</button>
+                    <div class="plus"><i class="plus fa fa-plus"></i></div>
                     <p class="time-unit">minutes</p>
                 </div>
                 <div class="session">
                     <p>SESSION LENGTH</p>
-                    <button class="minus">-</button>
+                    <div class="minus"><i class="fa fa-minus"></i></div>
                     <div class="length">25</div>
-                    <button class="plus">+</button>
+                    <div class="plus"><i class="fa fa-plus"></i></div>
                     <p class="time-unit">minutes</p>
                 </div>
             </div>
-            <div class="clock-container">
-                <div class="clock">
-                    <p class="clock-which">Session</p>
-                    <p class="clock-display">25
-                        <br>
-                        <span>minutes</span>
-                    </p>
+            <div class="clock-container-before">
+                <div class="clock-container">
+                    <div class="clock">
+                        <p class="clock-which">Session</p>
+                        <p class="clock-display">25
+                            <br>
+                            <span>minutes</span>
+                        </p>
+                    </div>
                 </div>
             </div>
             <div class="action">
-                <span>
-                    <button class="start">Start</button>
-                    <button class="pause">Pause</button>
-                </span>
-                <button class="reset">Reset</button>
+                <div><i class="pause fa fa-fw fa-pause-circle-o fa-5x"></i></div>
+                <div><i class="start fa fa-fw fa-play-circle-o fa-5x"></i></div>
+                <div><i class="reset fa fa-fw fa-undo fa-4x"></i></div>
             </div>
         </div>
     </div>
