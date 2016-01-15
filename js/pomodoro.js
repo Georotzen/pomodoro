@@ -66,6 +66,7 @@ var timer = function(sTime, bTime, display) {
             updateDisplay(which);
             $(".clock-which").text(which);
             // switch from Session to Break and vice versa when the timer has 0 seconds remaining
+            if (counter == 1) $(".alarm").trigger("play");
             if (counter < 1) switchTimer(which);
         }
     }
@@ -80,6 +81,7 @@ var timer = function(sTime, bTime, display) {
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
         display.html(hours > 0 ? (hours + " : " + minutes + " : " + seconds) : "" + minutes + " : " + seconds);
+        $(".tick").trigger("play");
         fill();
         return;
     }
@@ -108,6 +110,7 @@ var timer = function(sTime, bTime, display) {
             color = sessionColor;
             startSecs = sTime;
         }
+        
         $clockContainerBefore.css("border-color", color);
         intervalID = setInterval(function() {
             startTimer(w)
