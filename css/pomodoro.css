@@ -5,6 +5,9 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body,
@@ -16,6 +19,13 @@ html {
 body {
     background: #24272F;
     font-family: 'Fugaz One', cursive;
+}
+
+#wrapper {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto;
 }
 
 .title {
@@ -103,7 +113,33 @@ body {
 }
 
 .clock p {
-    padding: 60px 0;
+    padding: 40px 0;
+}
+
+.extras {
+    width: 140px;
+    margin: 0 auto;
+    cursor: default;
+}
+
+.sound-option,
+.info {
+    display: inline-block;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+}
+
+.sound-option {
+    margin-right: 30px;
+}
+
+.sound-off {
+    display: none;
+}
+
+.info a {
+    color: #FFF;
 }
 
 .action {
@@ -114,7 +150,7 @@ body {
     min-width: 90px;
     min-height: 70px;
     display: inline-block;
-    cursor: pointer;
+    cursor: default;
 }
 
 .start {
@@ -133,9 +169,62 @@ body {
     cursor: pointer;
 }
 
-@media (max-width: 550px) {
+
+/*--- Footer ---*/
+
+#footer {
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    text-align: center;
+    font-family: sans-serif;
+    width: 100%;
+}
+
+.push {
+    height: 185px;
+}
+
+.footer-container {
+    background-color: transparent;
+}
+
+.footer-social-buttons {
+    margin-top: 10px;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.footer-social-buttons > li {
+    display: inline-block;
+    padding: 0 10px;
+    list-style: none;
+}
+
+.footer-social-buttons > li > a,
+.footer-social-buttons > li > a:hover,
+.footer-social-buttons > li > a:focus {
+    background: transparent;
+    border: none;
+    color: white;
+}
+
+.copyright {
+    font-size: 12px;
+}
+
+@media (max-width: 700px) {
     .title {
         font-size: 60px;
+    }
+    #footer {
+        padding: 0;
+    }
+    .footer-social-buttons > li,
+    .footer-social-buttons > li > a,
+    .footer-social-buttons > li > a:hover,
+    .footer-social-buttons > li > a:focus,
+    .footer-social-buttons > li > a > p {
+        padding: 2px;
     }
 }
 
@@ -160,6 +249,6 @@ body {
         height: 281px;
     }
     .clock p {
-        padding: 40px 0;
+        padding: 20px 0;
     }
 }

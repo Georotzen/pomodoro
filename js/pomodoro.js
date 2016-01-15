@@ -6,6 +6,7 @@ var $clockDisplay = $(".clock-display"),
     breakLength = $(".break > .length").text() * 60,
     sessionColor = "#2F8C2F",
     breakColor = "#AF3A3A",
+    sound = true,
     t;
 
 function pluralize(amount) {
@@ -64,9 +65,8 @@ var timer = function(sTime, bTime, display) {
         if (!paused) {
             counter--;
             updateDisplay(which);
-            $(".clock-which").text(which);
             // switch from Session to Break and vice versa when the timer has 0 seconds remaining
-            if (counter == 1) $(".alarm").trigger("play");
+            if (counter == 1 && sound) $(".alarm").trigger("play");
             if (counter < 1) switchTimer(which);
         }
     }
@@ -81,7 +81,7 @@ var timer = function(sTime, bTime, display) {
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
         display.html(hours > 0 ? (hours + " : " + minutes + " : " + seconds) : "" + minutes + " : " + seconds);
-        $(".tick").trigger("play");
+        if (sound) $(".tick").trigger("play");
         fill();
         return;
     }
@@ -110,11 +110,16 @@ var timer = function(sTime, bTime, display) {
             color = sessionColor;
             startSecs = sTime;
         }
-        
+        $(".clock-which").text(w);
         $clockContainerBefore.css("border-color", color);
         intervalID = setInterval(function() {
             startTimer(w)
         }, 1000);
+    }
+
+    this.toggleSound = function() {
+        if (sound) sound = false;
+        else sound = true;
     }
 
     this.run = function() {
@@ -164,14 +169,14 @@ function buttonListeners() {
     $(".start").click(function() {
         if (!t.isRunning()) t = new timer(sessionLength, breakLength, $clockDisplay);
         $(this).hide(0, function() {
-            $(".pause").show(100);
+            $(".pause").show(0);
         });
         t.run();
     });
 
     $(".pause").click(function() {
         $(this).hide(0, function() {
-            $(".start").show(100);
+            $(".start").show(0);
         });
         t.pause();
     });
@@ -179,11 +184,25 @@ function buttonListeners() {
     $(".reset").click(function() {
         if (t.isRunning()) {
             $(".pause").hide(0, function() {
-                $(".start").show(100);
+                $(".start").show(0);
             });
             t.restart();
             updateLength(null, ".session");
         }
+    });
+
+    $(".sound-on").click(function() {
+        $(this).hide(0, function() {
+            $(".sound-off").show(0);
+        });
+        t.toggleSound();
+    });
+
+    $(".sound-off").click(function() {
+        $(this).hide(0, function() {
+            $(".sound-on").show(0);
+        });
+        t.toggleSound();
     });
 }
 
