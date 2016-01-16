@@ -28,6 +28,9 @@ body {
     margin: 0 auto;
 }
 
+
+/*--- Title ---*/
+
 .title {
     text-align: center;
     color: #AFC7FF;
@@ -35,6 +38,9 @@ body {
     padding-top: 10px;
     text-shadow: 0px 1px 0px #999, 0px 2px 0px #888, 0px 3px 0px #777, 0px 4px 0px #666, 0px 5px 0px #555, 0px 6px 0px #444, 0px 7px 0px #333, 0px 8px 7px #001135;
 }
+
+
+/*--- Length Options ---*/
 
 .options {
     color: #F4F4F4;
@@ -78,18 +84,8 @@ body {
     color: #068906;
 }
 
-.clock-container {
-    width: 360px;
-    height: 360px;
-    background: #24272F;
-    position: relative;
-    border: 5px solid #24272F;
-    border-radius: 50%;
-    margin: 0 auto;
-    font-size: 30px;
-    color: #F4F4F4;
-    text-align: center;
-}
+
+/*--- Clock Main ---*/
 
 .clock-container-before {
     width: 366px;
@@ -101,6 +97,19 @@ body {
     border-color: #FFF;
     border-radius: 50%;
     margin: 0 auto;
+    text-align: center;
+}
+
+.clock-container {
+    width: 360px;
+    height: 360px;
+    background: #24272F;
+    position: relative;
+    border: 5px solid #24272F;
+    border-radius: 50%;
+    margin: 0 auto;
+    font-size: 30px;
+    color: #F4F4F4;
     text-align: center;
 }
 
@@ -146,6 +155,9 @@ body {
     display: none;
 }
 
+
+/*--- Action Buttons ---*/
+
 .action {
     text-align: center;
 }
@@ -173,6 +185,10 @@ body {
     cursor: pointer;
 }
 
+.push {
+    height: 185px;
+}
+
 
 /*--- Footer ---*/
 
@@ -182,10 +198,6 @@ body {
     text-align: center;
     font-family: sans-serif;
     width: 100%;
-}
-
-.push {
-    height: 185px;
 }
 
 .footer-container {
@@ -215,6 +227,9 @@ body {
 .copyright {
     font-size: 12px;
 }
+
+
+/*--- Mobile Styling ---*/
 
 @media (max-width: 700px) {
     .title {
