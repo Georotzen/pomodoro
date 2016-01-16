@@ -122,24 +122,28 @@ body {
     cursor: default;
 }
 
-.sound-option,
+.extras a {
+    color: #FFF;
+    display: inline-block;
+}
+
 .info {
+    float: left;
+}
+
+.source {
+    float: right;
+}
+
+.sound-option {
     display: inline-block;
     width: 42px;
     height: 42px;
     cursor: pointer;
 }
 
-.sound-option {
-    margin-right: 30px;
-}
-
 .sound-off {
     display: none;
-}
-
-.info a {
-    color: #FFF;
 }
 
 .action {
